@@ -1,0 +1,8 @@
+"0","# Remove link variable"
+"0","df_songs$link <- NULL"
+"0",""
+"0","# add a song number (identifier) so that songs can be tracked between objects"
+"0",""
+"0","# Add a new column with row numbers in the desired format"
+"0","df_songs <- df_songs %>%"
+"0","  mutate(song_num = paste0(""song_"", row_number()))"

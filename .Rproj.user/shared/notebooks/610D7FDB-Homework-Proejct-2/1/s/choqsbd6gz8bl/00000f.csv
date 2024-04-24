@@ -1,0 +1,2 @@
+"0","# Read from csv into object"
+"0","df_songs <- read.csv(""Spotify Million Song Dataset_exported.csv"")"

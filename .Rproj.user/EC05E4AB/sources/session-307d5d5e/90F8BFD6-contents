@@ -1,0 +1,567 @@
+---
+title: "Homework 3"
+format: html
+embed-resources: true
+editor: visual
+author: Cole Marshall
+---
+
+## Create 10x Song Objects for Artist #1 (Zach Bryan)
+
+```{r}
+Burn_Burn_Burn <- readRDS("Burn_Burn_Burn")
+Dawns <- readRDS("Dawns")
+East_Side_of_Sorrow <- readRDS("East_Side_of_Sorrow")
+Fear_and_Fridays <- readRDS("Fear_and_Fridays")
+Hey_Driver <- readRDS("Hey_Driver")
+I_Remember_Everything <- readRDS("I_Remember_Everything")
+Smaller_Acts <- readRDS("Smaller_Acts")
+Something_in_the_Orange <- readRDS("Something_in_the_Orange")
+Spotless <- readRDS("Spotless")
+Tourniquet <- readRDS("Tourniquet")
+```
+
+```{r}
+Burn_Burn_Burn <- as.character(Burn_Burn_Burn)
+Dawns <- as.character(Dawns)
+East_Side_of_Sorrow <- as.character(East_Side_of_Sorrow)
+Fear_and_Fridays <- as.character(Fear_and_Fridays)
+Hey_Driver <- as.character(Hey_Driver)
+I_Remember_Everything <- as.character(I_Remember_Everything)
+Smaller_Acts <- as.character(Smaller_Acts)
+Something_in_the_Orange <- as.character(Something_in_the_Orange)
+Spotless <- as.character(Spotless)
+Tourniquet <- as.character(Tourniquet)
+```
+
+```{r}
+Burn_Burn_Burn <- as.data.frame(Burn_Burn_Burn)
+Dawns <- as.data.frame(Dawns)
+East_Side_of_Sorrow <- as.data.frame(East_Side_of_Sorrow)
+Fear_and_Fridays <- as.data.frame(Fear_and_Fridays)
+Hey_Driver <- as.data.frame(Hey_Driver)
+I_Remember_Everything <- as.data.frame(I_Remember_Everything)
+Smaller_Acts <- as.data.frame(Smaller_Acts)
+Something_in_the_Orange <- as.data.frame(Something_in_the_Orange)
+Spotless <- as.data.frame(Spotless)
+Tourniquet <- as.data.frame(Tourniquet)
+```
+
+## Create 10x Song Objects for Artist #2 (Hozier)
+
+```{r}
+Almost <- readRDS("Almost")
+Cherry_Wine <- readRDS("Cherry_Wine")
+Eat_Your_Young <- readRDS("Eat_Your_Young")
+From_Eden <- readRDS("From_Eden")
+Like_Real_People_Do <- readRDS("Like_Real_People_Do")
+Nina_Cried_Power <- readRDS("Nina_Cried_Power")
+Shrike <- readRDS("Shrike")
+Someone_New <- readRDS("Someone_New")
+Take_Me_to_Church <- readRDS("Take_Me_to_Church")
+Work_Song <- readRDS("Work_Song")
+```
+
+```{r}
+Almost <- as.character(Almost)
+Cherry_Wine <- as.character(Cherry_Wine)
+Eat_Your_Young <- as.character(Eat_Your_Young)
+From_Eden <- as.character(From_Eden)
+Like_Real_People_Do <- as.character(Like_Real_People_Do)
+Nina_Cried_Power <- as.character(Nina_Cried_Power)
+Shrike <- as.character(Shrike)
+Someone_New <- as.character(Someone_New)
+Take_Me_to_Church <- as.character(Take_Me_to_Church)
+Work_Song <- as.character(Work_Song)
+```
+
+```{r}
+Almost <- as.data.frame(Almost)
+Cherry_Wine <- as.data.frame(Cherry_Wine)
+Eat_Your_Young <- as.data.frame(Eat_Your_Young)
+From_Eden <- as.data.frame(From_Eden)
+Like_Real_People_Do <- as.data.frame(Like_Real_People_Do)
+Nina_Cried_Power <- as.data.frame(Nina_Cried_Power)
+Shrike <- as.data.frame(Shrike)
+Someone_New <- as.data.frame(Someone_New)
+Take_Me_to_Church <- as.data.frame(Take_Me_to_Church)
+Work_Song <- as.data.frame(Work_Song)
+```
+
+## Visualize Analysis
+
+```{r}
+# Load required libraries
+library(tidytext)
+library(dplyr)
+library(ggplot2)
+
+```
+
+```{r}
+# Tokenize words for Zach Bryan Songs
+Burn_Burn_Burn_bigrams <- Burn_Burn_Burn %>% 
+  unnest_tokens(bigram, Burn_Burn_Burn, token = "ngrams", n = 2)
+
+Burn_Burn_Burn <- Burn_Burn_Burn %>% 
+  unnest_tokens(word, Burn_Burn_Burn)
+
+Dawns_bigrams <- Dawns %>% 
+  unnest_tokens(bigram, Dawns, token = "ngrams", n = 2)
+
+Dawns <- Dawns %>% 
+  unnest_tokens(word,Dawns)
+
+East_Side_of_Sorrow_bigrams <- East_Side_of_Sorrow %>% 
+  unnest_tokens(bigram, East_Side_of_Sorrow, token = "ngrams", n = 2)
+
+East_Side_of_Sorrow <- East_Side_of_Sorrow %>% 
+  unnest_tokens(word, East_Side_of_Sorrow)
+
+Fear_and_Fridays_bigrams <- Fear_and_Fridays %>% 
+  unnest_tokens(bigram, Fear_and_Fridays, token = "ngrams", n = 2)
+
+Fear_and_Fridays <- Fear_and_Fridays %>% 
+  unnest_tokens(word, Fear_and_Fridays)
+
+Hey_Driver_bigrams <- Hey_Driver %>% 
+  unnest_tokens(bigram, Hey_Driver, token = "ngrams", n = 2)
+
+Hey_Driver <- Hey_Driver %>% 
+  unnest_tokens(word, Hey_Driver)
+
+I_Remember_Everything_bigrams <- I_Remember_Everything %>% 
+  unnest_tokens(bigram, I_Remember_Everything, token = "ngrams", n = 2)
+
+I_Remember_Everything <- I_Remember_Everything %>% 
+  unnest_tokens(word, I_Remember_Everything)
+
+Smaller_Acts_bigrams <- Smaller_Acts %>% 
+  unnest_tokens(bigram, Smaller_Acts, token = "ngrams", n = 2)
+
+Smaller_Acts <- Smaller_Acts %>% 
+  unnest_tokens(word, Smaller_Acts)
+
+Something_in_the_Orange_bigrams <- Something_in_the_Orange %>% 
+  unnest_tokens(bigram, Something_in_the_Orange, token = "ngrams", n = 2)
+
+Something_in_the_Orange <- Something_in_the_Orange %>% 
+  unnest_tokens(word, Something_in_the_Orange)
+
+Spotless_bigrams <- Spotless %>% 
+  unnest_tokens(bigram, Spotless, token = "ngrams", n = 2)
+
+Spotless <- Spotless %>% 
+  unnest_tokens(word, Spotless)
+
+Tourniquet_bigrams <- Tourniquet %>% 
+  unnest_tokens(bigram, Tourniquet, token = "ngrams", n = 2)
+
+Tourniquet <- Tourniquet %>% 
+  unnest_tokens(word, Tourniquet)
+
+All_Songs_Zach_Bryan <- bind_rows(Burn_Burn_Burn, Dawns, East_Side_of_Sorrow, Fear_and_Fridays, Hey_Driver, I_Remember_Everything, Smaller_Acts, Something_in_the_Orange, Spotless, Tourniquet)
+
+```
+
+```{r}
+# Tokenize words for Hozier Songs
+Almost_bigrams <- Almost %>% 
+  unnest_tokens(bigram, Almost, token = "ngrams", n = 2)
+
+Almost <- Almost %>% 
+  unnest_tokens(word, Almost)
+
+Cherry_Wine_bigrams <- Cherry_Wine %>% 
+  unnest_tokens(bigram, Cherry_Wine, token = "ngrams", n = 2)
+
+Cherry_Wine <- Cherry_Wine %>% 
+  unnest_tokens(word, Cherry_Wine)
+
+Eat_Your_Young_bigrams <- Eat_Your_Young %>% 
+  unnest_tokens(bigram, Eat_Your_Young, token = "ngrams", n = 2)
+
+Eat_Your_Young <- Eat_Your_Young %>% 
+  unnest_tokens(word, Eat_Your_Young)
+
+From_Eden_bigrams <- From_Eden %>% 
+  unnest_tokens(bigram, From_Eden, token = "ngrams", n = 2)
+
+From_Eden <- From_Eden %>% 
+  unnest_tokens(word, From_Eden)
+
+Like_Real_People_Do_bigrams <- Like_Real_People_Do %>% 
+  unnest_tokens(bigram, Like_Real_People_Do, token = "ngrams", n = 2)
+
+Like_Real_People_Do <- Like_Real_People_Do %>% 
+  unnest_tokens(word, Like_Real_People_Do)
+
+Nina_Cried_Power_bigrams <- Nina_Cried_Power %>% 
+  unnest_tokens(bigram, Nina_Cried_Power, token = "ngrams", n = 2)
+
+Nina_Cried_Power <- Nina_Cried_Power %>% 
+  unnest_tokens(word, Nina_Cried_Power)
+
+Shrike_bigrams <- Shrike %>% 
+  unnest_tokens(bigram, Shrike, token = "ngrams", n = 2)
+
+Shrike <- Shrike %>% 
+  unnest_tokens(word, Shrike)
+
+Someone_New_bigrams <- Someone_New %>% 
+  unnest_tokens(bigram, Someone_New, token = "ngrams", n = 2)
+
+Someone_New <- Someone_New %>% 
+  unnest_tokens(word, Someone_New)
+
+Take_Me_to_Church_bigrams <- Take_Me_to_Church %>% 
+  unnest_tokens(bigram, Take_Me_to_Church, token = "ngrams", n = 2)
+
+Take_Me_to_Church <- Take_Me_to_Church %>% 
+  unnest_tokens(word, Take_Me_to_Church)
+
+Work_Song_bigrams <- Work_Song %>% 
+  unnest_tokens(bigram, Work_Song, token = "ngrams", n = 2)
+
+Work_Song <- Work_Song %>% 
+  unnest_tokens(word, Work_Song)
+
+All_Songs_Hozier <- bind_rows(Almost, Cherry_Wine, Eat_Your_Young, From_Eden, Like_Real_People_Do, Nina_Cried_Power, Shrike, Someone_New, Take_Me_to_Church, Work_Song)
+
+```
+
+```{r}
+# Remove stopwords
+Almost <- Almost %>% 
+  anti_join(stop_words)
+
+Burn_Burn_Burn <- Burn_Burn_Burn %>% 
+  anti_join(stop_words)
+
+Cherry_Wine <- Cherry_Wine %>% 
+  anti_join(stop_words)
+
+Dawns <- Dawns %>% 
+  anti_join(stop_words)
+
+East_Side_of_Sorrow <- East_Side_of_Sorrow %>% 
+  anti_join(stop_words)
+
+Eat_Your_Young <- Eat_Your_Young %>% 
+  anti_join(stop_words)
+
+Fear_and_Fridays <- Fear_and_Fridays %>% 
+  anti_join(stop_words)
+
+From_Eden <- From_Eden %>% 
+  anti_join(stop_words)
+
+Hey_Driver <- Hey_Driver %>% 
+  anti_join(stop_words)
+
+I_Remember_Everything <- I_Remember_Everything %>% 
+  anti_join(stop_words)
+
+Like_Real_People_Do <- Like_Real_People_Do %>% 
+  anti_join(stop_words)
+
+Nina_Cried_Power <- Nina_Cried_Power %>% 
+  anti_join(stop_words)
+
+Shrike <- Shrike %>% 
+  anti_join(stop_words)
+
+Smaller_Acts <- Smaller_Acts %>% 
+  anti_join(stop_words)
+
+Something_in_the_Orange <- Something_in_the_Orange %>% 
+  anti_join(stop_words)
+
+Spotless <- Spotless %>% 
+  anti_join(stop_words)
+
+Take_Me_to_Church <- Take_Me_to_Church %>% 
+  anti_join(stop_words)
+
+Tourniquet <- Tourniquet %>% 
+  anti_join(stop_words)
+
+Work_Song <- Work_Song %>% 
+  anti_join(stop_words)
+
+```
+
+## TF IDF for 3 Hozier Songs
+
+```{r}
+# Song 1
+Almost <- Almost %>% 
+  count(word, sort = TRUE)
+
+Almost$Song <- "Almost"
+Almost_bigrams$Song <- "Almost"
+
+# Song 2
+Cherry_Wine <- Cherry_Wine %>% 
+  count(word, sort = TRUE)
+
+Cherry_Wine$Song <- "Cherry Wine"
+Cherry_Wine_bigrams$Song <- "Cherry Wine"
+
+# Song 3
+Eat_Your_Young <- Eat_Your_Young %>% 
+  count(word, sort = TRUE)
+
+Eat_Your_Young$Song <- "Eat Your Young"
+Eat_Your_Young_bigrams$Song <- "Eat Your Young"
+
+# Song 4
+From_Eden <- From_Eden %>% 
+  count(word, sort = TRUE)
+
+From_Eden$Song <- "From Eden"
+From_Eden_bigrams$Song <- "From Eden"
+
+# Song 5
+Like_Real_People_Do <- Like_Real_People_Do %>% 
+  count(word, sort = TRUE)
+
+Like_Real_People_Do$Song <- "Like Real People Do"
+Like_Real_People_Do_bigrams$Song <- "Like Real People Do"
+
+# Song 6
+Nina_Cried_Power <- Nina_Cried_Power %>% 
+  count(word, sort = TRUE)
+
+Nina_Cried_Power$Song <- "Nina Cried Power"
+Nina_Cried_Power_bigrams$Song <- "Nina Cried Power"
+
+# Song 7
+Shrike <- Shrike %>% 
+  count(word, sort = TRUE)
+
+Shrike$Song <- "Shrike"
+Shrike_bigrams$Song <- "Shrike"
+
+# Song 8
+Someone_New <- Someone_New %>% 
+  count(word, sort = TRUE)
+
+Someone_New$Song <- "Smaller Acts"
+Someone_New_bigrams$Song <- "Smaller Acts"
+
+# Song 9
+Take_Me_to_Church <- Take_Me_to_Church %>% 
+  count(word, sort = TRUE)
+
+Take_Me_to_Church$Song <- "Smaller Acts"
+Take_Me_to_Church_bigrams$Song <- "Smaller Acts"
+
+# Song 10
+Work_Song <- Work_Song %>% 
+  count(word, sort = TRUE)
+
+Work_Song$Song <- "Work Song"
+Work_Song_bigrams$Song <- "Work Song"
+```
+
+```{r}
+Hozier <- bind_rows(Almost, Cherry_Wine, Eat_Your_Young)
+
+Hozier_tf_idf <- Hozier %>% bind_tf_idf(word, Song, n)
+```
+
+```{r}
+library(ggplot2)
+
+Hozier_tf_idf %>%
+  group_by(Song) %>%
+  slice_max(tf_idf, n = 5) %>%
+  ungroup() %>%
+  ggplot(aes(tf_idf, reorder(word, tf_idf), fill = Song)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~Song, ncol = 3, scales = "free") +
+  labs(x = "TF-IDF", y = NULL) +
+  theme(axis.text.y = element_text(size = 8))
+
+```
+
+## TF IDF for 3 Zach Bryan Songs
+
+```{r}
+# Song 1
+Burn_Burn_Burn <- Burn_Burn_Burn %>% 
+  count(word, sort = TRUE)
+
+Burn_Burn_Burn$Song <- "Burn Burn Burn"
+Burn_Burn_Burn_bigrams$Song <- "Burn Burn Burn"
+
+# Song 2
+Dawns <- Dawns %>% 
+  count(word, sort = TRUE)
+
+Dawns$Song <- "Dawns"
+Dawns_bigrams$Song <- "Dawns"
+
+# Song 3
+East_Side_of_Sorrow <- East_Side_of_Sorrow %>% 
+  count(word, sort = TRUE)
+
+East_Side_of_Sorrow$Song <- "East Side of Sorrow"
+East_Side_of_Sorrow_bigrams$Song <- "East Side of Sorrow"
+
+# Song 4
+Fear_and_Fridays <- Fear_and_Fridays %>% 
+  count(word, sort = TRUE)
+
+Fear_and_Fridays$Song <- "Fear and Fridays"
+Fear_and_Fridays_bigrams$Song <- "Fear and Fridays"
+
+# Song 5
+Hey_Driver <- Hey_Driver %>% 
+  count(word, sort = TRUE)
+
+Hey_Driver$Song <- "Hey Driver"
+Hey_Driver_bigrams$Song <- "Hey Driver"
+
+# Song 6
+I_Remember_Everything <- I_Remember_Everything %>% 
+  count(word, sort = TRUE)
+
+I_Remember_Everything$Song <- "I Remember Everything"
+I_Remember_Everything_bigrams$Song <- "I Remember Everything"
+
+# Song 7
+Smaller_Acts <- Smaller_Acts %>% 
+  count(word, sort = TRUE)
+
+Smaller_Acts$Song <- "Smaller Acts"
+Smaller_Acts_bigrams$Song <- "Smaller Acts"
+
+# Song 8
+Something_in_the_Orange <- Something_in_the_Orange %>% 
+  count(word, sort = TRUE)
+
+Something_in_the_Orange$Song <- "Something in the Orange"
+Something_in_the_Orange_bigrams$Song <- "Something in the Orange"
+
+# Song 9
+Spotless <- Spotless %>% 
+  count(word, sort = TRUE)
+
+Spotless$Song <- "Spotless"
+Spotless_bigrams$Song <- "Spotless"
+
+# Song 10
+Tourniquet <- Tourniquet %>% 
+  count(word, sort = TRUE)
+
+Tourniquet$Song <- "Tourniquet"
+Tourniquet_bigrams$Song <- "Tourniquet"
+```
+
+```{r}
+Zach_Bryan <- bind_rows(Burn_Burn_Burn, Dawns, East_Side_of_Sorrow)
+
+Zach_Bryan_tf_idf <- Zach_Bryan %>% bind_tf_idf(word, Song, n)
+```
+
+```{r}
+Zach_Bryan_tf_idf %>%
+  group_by(Song) %>%
+  slice_max(tf_idf, n = 5) %>%
+  ungroup() %>%
+  ggplot(aes(tf_idf, reorder(word, tf_idf), fill = Song)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~Song, ncol = 3, scales = "free") +
+  labs(x = "TF-IDF", y = NULL) +
+  theme(axis.text.y = element_text(size = 8))
+```
+
+## Top 10 Bigrams
+
+```{r}
+Hozier <- bind_rows(Almost_bigrams, Cherry_Wine_bigrams, Eat_Your_Young_bigrams, From_Eden_bigrams, Like_Real_People_Do_bigrams, Nina_Cried_Power_bigrams, Shrike_bigrams, Someone_New_bigrams, Take_Me_to_Church_bigrams, Work_Song_bigrams)
+
+Hozier_bigram <- Hozier %>% 
+  count(Song, bigram) %>% 
+  bind_tf_idf(bigram, Song, n) %>% 
+  arrange(desc(tf_idf))
+
+Hozier_bigram[1:10,]
+```
+
+```{r}
+Zach_Bryan <- bind_rows(Burn_Burn_Burn_bigrams, Dawns_bigrams, East_Side_of_Sorrow_bigrams, Fear_and_Fridays_bigrams, Hey_Driver_bigrams, I_Remember_Everything_bigrams, Smaller_Acts_bigrams, Something_in_the_Orange_bigrams, Spotless_bigrams, Tourniquet_bigrams )
+
+Zach_Bryan_bigram <- Zach_Bryan %>% 
+  count(Song, bigram) %>% 
+  bind_tf_idf(bigram, Song, n) %>% 
+  arrange(desc(tf_idf))
+
+Zach_Bryan_bigram[1:10,]
+```
+
+## Sentiment Analysis and Visualization
+
+```{r}
+library(tidyr)
+
+Zach_Bryan <- bind_rows(Burn_Burn_Burn, Dawns, East_Side_of_Sorrow, Fear_and_Fridays, Hey_Driver, I_Remember_Everything, Smaller_Acts, Something_in_the_Orange, Spotless, Tourniquet)
+
+Zach_Bryan <- Zach_Bryan %>% 
+  inner_join(get_sentiments("bing"))
+
+Zach_Bryan_sentiment <- Zach_Bryan %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(Song, sentiment) %>%
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+  
+ggplot(Zach_Bryan_sentiment, aes(x = Song, y = sentiment, fill = Song)) +
+  geom_col(position = "dodge") +
+  labs(title = "Sentiment Scores of Zach Bryan's Songs",
+       x = "Song",
+       y = "Sentiment Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+```
+
+```{r}
+Hozier <- bind_rows(Almost, Cherry_Wine, Eat_Your_Young, From_Eden, Like_Real_People_Do, Nina_Cried_Power, Shrike, Someone_New, Take_Me_to_Church, Work_Song)
+
+Hozier <- Hozier %>% 
+  inner_join(get_sentiments("bing"))
+
+Hozier_sentiment <- Hozier %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(Song, sentiment) %>%
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+ggplot(Hozier_sentiment, aes(x = Song, y = sentiment, fill = Song)) +
+  geom_col(position = "dodge") +
+  labs(title = "Sentiment Scores of Hozier's Songs",
+       x = "Song",
+       y = "Sentiment Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+```
+
+## Word Cloud
+
+```{r}
+library(wordcloud)
+
+All_Songs_Hozier %>%
+  anti_join(stop_words) %>% 
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+```
+
+```{r}
+All_Songs_Zach_Bryan %>%
+  anti_join(stop_words) %>% 
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+```

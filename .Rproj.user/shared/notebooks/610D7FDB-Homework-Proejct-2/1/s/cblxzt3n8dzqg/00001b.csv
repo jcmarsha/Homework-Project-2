@@ -1,0 +1,4 @@
+"0",""
+"0","sentiment_counts$net_score <- sentiment_counts$positive - sentiment_counts$negative"
+"0",""
+"0",""

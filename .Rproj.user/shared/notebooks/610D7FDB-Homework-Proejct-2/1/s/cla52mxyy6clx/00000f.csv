@@ -1,0 +1,9 @@
+"0","plot_ly(combined_data, x = ~swear_word_count, y = ~net_sentiment_score, type = ""scatter"", mode = ""markers"", 
+        marker = list(color = ""blue"", size = 10), text = ~paste(""Artist ID:"", artist_id)) %>%
+  layout(title = ""Number of Swear Words vs. Net Sentiment Score"",
+         xaxis = list(title = ""Number of Swear Words""),
+         yaxis = list(title = ""Net Sentiment Score""))
+"
+"2","Error in eval(expr, data, expr_env) : 
+  object 'net_sentiment_score' not found
+"

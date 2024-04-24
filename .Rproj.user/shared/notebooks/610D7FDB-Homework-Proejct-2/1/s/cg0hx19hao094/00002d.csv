@@ -1,0 +1,8 @@
+"0",""
+"0","library(plotly)"
+"0",""
+"0","# Plot interactive scatter plot"
+"0","plot_ly(unique_words, x = ~num_songs, y = ~text_combined, text = ~artist, type = 'scatter', mode = 'markers') %>%"
+"0","  layout(title = ""Number of Songs Written vs. Number of Unique Words Used"","
+"0","         xaxis = list(title = ""Number of Songs Written""),"
+"0","         yaxis = list(title = ""Number of Unique Words Used""))"

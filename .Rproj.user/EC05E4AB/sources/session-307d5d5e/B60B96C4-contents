@@ -1,0 +1,134 @@
+---
+title: "main"
+format: html
+embed-resources: true
+editor: visual
+author: Cole Marshall
+---
+
+## p16
+
+```{r}
+library(tidyverse)
+library(repurrrsive)
+library(jsonlite)
+```
+
+Roughly estimate when `gh_repos` was created. Why can you only roughly estimate the date?
+
+```{r}
+# Rough estimate of when gh_repos was created is around May or June of 2013. When I read through the values in the created_at column, the earliest date I saw was May of 2013. I am not entirely sure why it is that I am only able to roughly estimate the date.
+
+str(gh_repos[[1]][[1]])
+
+repos <- tibble(json = gh_repos)
+
+created <- repos %>% 
+  unnest_longer(json) %>%
+  unnest_wider(json) %>% 
+  select(created_at)
+
+created
+```
+
+The `owner` column of `gh_repo` contains a lot of duplicated information because each owner can have many repos. Can you construct an `owners` data frame that contains one row for each owner? (Hint: does [`distinct()`](https://dplyr.tidyverse.org/reference/distinct.html) work with `list-cols`?)
+
+```{r}
+
+repos <- repos |> 
+  unnest_longer(json) |> 
+  unnest_wider(json) |> 
+  select(id, full_name, owner, description) |> 
+  unnest_wider(owner, names_sep = "_")
+
+owners <- repos %>%
+  select(owner_login) %>% 
+  distinct()  
+
+owners
+```
+
+Follow the steps used for `titles` to create similar tables for the aliases, allegiances, books, and TV series for the Game of Thrones characters.
+
+```{r}
+chars <- tibble(json = got_chars)
+
+str(chars[[1]][[1]])
+
+aliases <- chars |> 
+  unnest_wider(json) |> 
+  select(id, aliases) |> 
+  unnest_longer(aliases) |> 
+  filter(aliases != "") |> 
+  rename(aliases = aliases)
+
+allegiances <- chars |> 
+  unnest_wider(json) |> 
+  select(id, allegiances) |> 
+  unnest_longer(allegiances) |> 
+  filter(allegiances != "") |> 
+  rename(allegiances = allegiances)
+
+books <- chars |> 
+  unnest_wider(json) |> 
+  select(id, books) |> 
+  unnest_longer(books) |> 
+  filter(books != "") |> 
+  rename(books = books)
+
+TV_Series <- chars |> 
+  unnest_wider(json) |> 
+  select(id, tvSeries) |> 
+  unnest_longer(tvSeries) |> 
+  filter(tvSeries != "") |> 
+  rename(TV_Series = tvSeries)
+
+aliases
+allegiances
+books
+TV_Series
+
+```
+
+Explain the following code line-by-line. Why is it interesting? Why does it work for `got_chars` but might not work in general?
+
+```{r}
+
+#This code performs data manipulation operations using functions from the tidyverse ecosystem, specifically targeting a tibble named got_chars containing JSON data. Let's break down each line and discuss why it's interesting and potential limitations:
+
+  tibble(json = got_chars) |>
+
+#This line creates a tibble with a single column named json, where each row contains a JSON object.
+  unnest_wider(json) |>
+
+#This line expands the JSON objects in the json column into separate columns in the tibble, ensuring that each key in the json object becomes a column. It's assuming that the json objects are nested in a way that allows direct expansion into columns. 
+    
+    select(id, where(is.list)) |>
+
+#This line selects the id column and any columns that contain lists using the where() function with the predicate is.list. It ensures that only columns containing lists are retained for the next steps. It's a dynamic way to select columns based on their characteristics.
+
+    pivot_longer(where(is.list), names_to = "name", values_to = "value") |>
+
+#This line reshapes the tibble from wide to long format for columns containing lists. Each list column name and its contents are transformed into two new columns: one for the name of the original list column (name) and one for the values within the lists (value).
+
+  unnest_longer(value)
+
+#This line expands the lists within the value column so that each element of each list gets its own row in the resulting tibble.
+
+#This code assumes that the original json data in got_chars is structured in a specific way, where each row contains a json object that can be directly expanded into columns using unnest_wider(). If the json structure varies or is more complex, additional preprocessing or different transformation techniques may be required. The use of predicates like is.list in select() and pivot_longer() assumes that the lists are identified solely by their data type.
+
+```
+
+In `gmaps_cities`, what does `address_components` contain? Why does the length vary between rows? Unnest it appropriately to figure it out. (Hint: `types` always appears to contain two elements. Does [`unnest_wider()`](https://tidyr.tidyverse.org/reference/unnest_wider.html) make it easier to work with than [`unnest_longer()`](https://tidyr.tidyverse.org/reference/unnest_longer.html)?) .
+
+```{r}
+locations <- gmaps_cities |> 
+  unnest_wider(json) |> 
+  select(-status) |> 
+  unnest_longer(results) |> 
+  unnest_wider(results)
+
+locations %>% unnest_longer(address_components)  %>%  unnest_wider(address_components, names_sep = "_") %>% unnest_wider(address_components_types, names_sep = "_")
+
+# Since each element of address_components appears to have consistent structure (with long_name, short_name, and types), unnest_wider() is likely more suitable for expanding it into separate columns, which can make it easier to work with compared to unnest_longer().
+```

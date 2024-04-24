@@ -1,0 +1,516 @@
+---
+title: "Homework-Project-2"
+format: html
+embed-resources: true
+editor: visual
+author: Cole Marshall
+---
+
+```{r}
+library(tokenizers)
+library(tidytext)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(devtools)
+```
+
+## Background
+
+About the dataset: The table named Spotify Million Song Dataset has 57,650 rows and 4 columns, with column names 'artist', 'song', 'link', and 'text', all of which are of string type. It provides a comprehensive collection of data that can be analyzed to gain insights into various aspects of the songs in the Spotify library.
+
+#### Questions
+
+The following are 4 questions that will be explored in this report and the general approach taken to answer/explore them.
+
+1.  **What are the most common themes or topics discussed in song lyrics?**
+
+    -   Analyze the 'text' column to identify recurring words, phrases, or themes in song lyrics. Use techniques like word frequency analysis, topic modeling, or sentiment analysis to uncover prevalent themes or emotions.
+
+2.  **Which artists have the largest vocabulary in their song lyrics?**
+
+    -   Calculate the diversity of vocabulary for each artist by analyzing the unique words used in their song lyrics. Identify artists who use a wide range of vocabulary versus those who stick to a more limited set of words.
+
+3.  **Are there any trends or patterns in the sentiment of song lyrics over time or across genres?**
+
+    -   Perform sentiment analysis on the lyrics to determine the overall sentiment (positive, negative, neutral) of songs. Explore if there are shifts in sentiment over different time periods or if certain genres tend to exhibit particular emotional tones.
+
+4.  **Which artists tend to use the most profanity?**
+
+    -   To gauge profanity in song lyrics, a profanity list is compiled. Lyrics are broken into words or phrases, identifying profane instances through comparison. Tallying these instances, counts are normalized for fair assessment. Trends across artists, genres, or time periods are then analyzed, considering profanity's subjective nature and cultural context. This approach unveils differences in profanity usage among artists.
+
+## Importing Data
+
+```{r}
+# Read from csv into object
+df_songs <- read.csv("Spotify Million Song Dataset_exported.csv")
+```
+
+## Cleaning Data
+
+We will remove the links associated with each of the songs as they are not important to the questions that we are trying to answer in this report. Additionally, we are creating a new identifier for each of the songs that corresponds to the song number in `df_songs`
+
+```{r}
+# Remove link variable
+df_songs$link <- NULL
+
+# add a song number (identifier) so that songs can be tracked between objects
+
+# Add a new column with row numbers in the desired format
+df_songs <- df_songs %>%
+  mutate(song_num = paste0("song_", row_number()))
+```
+
+## General Data Wrangling
+
+The provided R code forms part of a text processing pipeline designed to analyze song lyrics. It initializes a list named `list_songs` to store processed word objects, likely representing individual songs. The code then iterates over each row of a DataFrame named `df_songs`, assumed to contain song data. Within each iteration, the lyrics from the third column of the DataFrame are read and processed. Initially converted to character type, the lyrics are subsequently tokenized into words using the `unnest_tokens` function. Stopwords, common non-informative words like "the" and "and", are then removed from the tokens using an anti-join operation with a stopword list. The resulting processed word objects are stored in the `list_songs` list, indexed with names based on the iteration index. Finally, the entire list, containing processed data for each song, is saved as an RDS file named "list_songs". This code snippet demonstrates a systematic approach to preprocess song lyrics for further analysis or exploration.
+
+```{r}
+# Initialize a list to store unnested word objects
+#list_songs <- list()
+
+# Iterate over each row of the dataframe
+#for (i in 1:nrow(df_songs)) {
+  # Read the text from the 3rd column
+  #songs_text <- df_songs[i, 3]
+  
+  # Convert to character
+  #songs_text <- as.character(songs_text)
+  
+  # Create a dataframe with the text
+  #df_song <- data.frame(text = songs_text)
+  
+  # Unnest tokens
+  #post_unnested <- unnest_tokens(df_song, word, text)
+  
+  # Antijoin with Stopwords for all objects in list
+  #post_unnested_filtered <- anti_join(post_unnested, stop_words, by = "word")
+  
+  # Store the unnested word object in the list
+  #list_songs[[paste0("song_", i)]] <- post_unnested_filtered
+#}
+
+#saveRDS(list_songs, "list_songs")
+
+list_songs <- readRDS("list_songs")
+```
+
+## Codebook
+
+Below is a table that explains each of the objects and variables in this report.
+
+| **Object Name**               | **Definition**                                          |
+|-------------------------------|---------------------------------------------------------|
+| **`all_artists_df`**          |  DataFrame containing all artist data                   |
+| **`all_words`**               |  DataFrame containing all words from song lyrics        |
+| **`artist_counts`**           |  Counts of occurrences of each artist in the dataset    |
+| **`artist_df`**               |  DataFrame specific to information about artists        |
+| **`artist_id`**               |  Identifier for each artist                             |
+| **`artist_sentiment`**        |  Sentiment analysis results for each artist             |
+| **`artist_songs`**            |  DataFrame containing songs by each artist              |
+| **`artist_text`**             |  Aggregated text data for each artist                   |
+| **`combined_adjusted_df`**    |  Adjusted DataFrame combining several datasets          |
+| **`combined_data`**           |  DataFrame that combines multiple datasets for analysis |
+| **`combined_df`**             |  DataFrame resulting from merging multiple data sources |
+| **`df_song`**                 |  DataFrame containing song data                         |
+| **`df_songs`**                |  DataFrame containing multiple songs' data              |
+| **`fill_colors`**             |  Color specifications for plotting                      |
+| **`list_songs`**              |  List containing song information                       |
+| **`net_score`**               |  Calculated net score from sentiment analysis           |
+| **`percentile_labels`**       |  Labels for percentile categories in data               |
+| **`percentiles`**             |  Percentile ranks for data values                       |
+| **`plot_data`**               |  Data prepared specifically for plotting                |
+| **`post_unnested`**           |  DataFrame after unnesting operations                   |
+| **`post_unnested_filtered`**  |  Filtered version of unnested DataFrame                 |
+| **`sentiment_counts`**        |  Counts of different sentiments across texts            |
+| **`swear_word_count`**        |  Count of swear words in the text                       |
+| **`swear_word_counts`**       |  DataFrame of swear word counts                         |
+| **`swear_words`**             |  List of swear words identified in the text             |
+| **`text_combined`**           |  Combined text from multiple sources or records         |
+| **`top5_largest`**            |  Top 5 largest values or categories from the data       |
+| **`top5_largest_adjusted`**   |  Adjusted values for top 5 largest categories           |
+| **`top5_smallest`**           |  Top 5 smallest values or categories from the data      |
+| **`top5_smallest_adjusted`**  |  Adjusted values for top 5 smallest categories          |
+| **`top_words`**               |  Most frequent words extracted from the text            |
+| **`total_words`**             |  Total count of words across all texts                  |
+| **`unique_artists`**          |  List of unique artists in the dataset                  |
+| **`unique_words`**            |  List of unique words identified in the text            |
+| **`vocabulary_df`**           |  DataFrame containing vocabulary information            |
+| **`vocabulary_size`**         |  Size of the vocabulary used across texts               |
+| **`weighted_avg_vocabulary`** |  Weighted average size of vocabulary across texts       |
+| **`word_freq`**               |  Frequency of each word appearing in the text           |
+
+### **Question 1: What are the most common themes or topics discussed in song lyrics?**
+
+For this, we can perform a word frequency analysis to identify recurring words or phrases in the song lyrics.
+
+```{r}
+# Combine all words from all songs into a single dataframe
+all_words <- bind_rows(list_songs)
+
+# Perform word frequency analysis
+word_freq <- all_words %>%
+  count(word, sort = TRUE)
+
+# Visualize the top 20 most common words
+top_words <- word_freq %>%
+  slice_max(n = 20, order_by = n)
+
+# Plotting the top words
+ggplot(top_words, aes(x = reorder(word, n), y = n)) +
+  geom_col(fill = "skyblue") +
+  labs(title = "Top 20 Most Common Words in Song Lyrics",
+       x = "Word",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+The analysis of song lyrics reveals a distinct pattern in the most commonly used words, shedding light on recurring themes and motifs prevalent in music. Among these words, `top_words$word[1]` emerges as the foremost theme, with its frequency of `top_words$n[1]` occurrences, followed closely by related terms such as `top_words$word[2]` (`top_words$n[2]`) and `top_words$word[3]` (`top_words$n[3]`). This thematic cluster underscores the profound significance of love and emotional connection in songwriting, highlighting its universal appeal and enduring resonance across genres.
+
+Moreover, a group of words related to temporality, including "Time," "night," "day," and "life," emerges as another prominent theme. These words collectively illustrate the exploration of temporal concepts such as the passage of time, the cycles of day and night, and the contemplation of life's fleeting nature. The frequent use of these terms reflects the existential and introspective themes often explored in music, offering listeners a poignant reflection on the human experience.
+
+Additionally, words like "feel," "gonna," "yeah," "eyes," "mind," and "home" contribute to the lyrical landscape, enriching the thematic diversity of songwriting. These words evoke a range of emotions, from introspection and nostalgia to anticipation and affirmation, adding depth and complexity to the lyrical narrative.
+
+Overall, the analysis underscores the thematic richness and emotional depth inherent in song lyrics. Through the recurrent use of certain words and themes, songwriters convey universal truths, evoke powerful emotions, and invite listeners on a journey of introspection and self-discovery. From love and temporality to introspection and affirmation, these words illuminate the multifaceted nature of human experience, making music a profound and transformative art form.
+
+### **Question 2: Which artists have the largest vocabulary in their song lyrics?**
+
+We can calculate the diversity of vocabulary for each artist by analyzing the unique words used in their song lyrics.
+
+```{r}
+
+#artist_dfs <- list()
+
+# Get unique artists from df_songs
+#unique_artists <- unique(df_songs$artist)
+
+# Loop through each artist
+#for (artist in unique_artists) {
+  # Filter rows where artist is the current artist
+  #artist_songs <- df_songs[df_songs$artist == artist, ]
+  
+  # Combine text for the current artist
+  #artist_text <- paste(artist_songs$text, collapse = ' ')
+  
+  # Create DataFrame for the current artist
+  #artist_df <- data.frame(artist = artist, text_combined = artist_text)
+  
+  # Append the dataframe to the list
+  #artist_dfs[[artist]] <- artist_df
+#}
+
+# Combine all artist dataframes into a single dataframe
+#all_artists_df <- do.call(rbind, artist_dfs)
+
+# Print the combined dataframe
+#head(all_artists_df)
+
+#saveRDS(all_artists_df, file = "all_artists_df")
+  
+all_artists_df <- readRDS("all_artists_df")
+```
+
+```{r}
+
+# Initialize an empty list to store tokenized words for each artist
+#tokenized_words_list <- list()
+
+# Loop through each artist in the dataframe
+#for (artist in unique(all_artists_df$artist)) {
+  # Filter dataframe for the current artist
+  #artist_df <- all_artists_df[all_artists_df$artist == artist, ]
+  
+  # Tokenize the combined lyrics for the current artist
+  #tokenized_words <- unlist(tokenize_words(artist_df$text_combined))
+  
+  # Add tokenized words to the list
+  #tokenized_words_list[[artist]] <- tokenized_words
+#}
+
+#saveRDS(tokenized_words_list, file = "tokenized_words_list")
+
+tokenized_words_list <- readRDS("tokenized_words_list")
+```
+
+```{r}
+# Initialize an empty dataframe to store vocabulary sizes
+vocabulary_df <- data.frame(artist = character(), vocabulary_size = numeric())
+
+# Loop through each artist in the tokenized words list
+for (artist in names(tokenized_words_list)) {
+  # Get tokenized words for the current artist
+  tokenized_words <- tokenized_words_list[[artist]]
+  
+  # Calculate vocabulary size (number of unique words)
+  vocabulary_size <- length(unique(tokenized_words))
+  
+  # Add artist and vocabulary size to the dataframe
+  vocabulary_df <- rbind(vocabulary_df, data.frame(artist = artist, vocabulary_size = vocabulary_size))
+}
+
+# Sort the dataframe by vocabulary size
+vocabulary_df <- vocabulary_df[order(vocabulary_df$vocabulary_size, decreasing = TRUE), ]
+
+# Print the dataframe to see which artists have the biggest and smallest vocabularies
+head(vocabulary_df)
+
+```
+
+This code initializes an empty dataframe called `vocabulary_df` to store the vocabulary sizes of different artists. Then, it iterates through each artist in the `tokenized_words_list` object. For each artist, it calculates the vocabulary size (number of unique words) from their tokenized words and appends the artist name along with their vocabulary size to the `vocabulary_df` dataframe using `rbind()`. After looping through all artists, the dataframe is sorted in descending order based on vocabulary size. Finally, the sorted dataframe is printed to identify which artists have the biggest and smallest vocabularies.
+
+In the `vocabulary_df` dataframe, each row represents an artist, with the columns containing the artist's name (`artist`) and their corresponding vocabulary size (`vocabulary_size`). To reference specific data in the `vocabulary_df` object, you can use inline code like this: `vocabulary_df$column_name`. For example, to reference the vocabulary size of the first artist in the dataframe, you would use `vocabulary_df$vocabulary_size[1]`.
+
+```{r}
+#Smallest and Largest
+top5_largest <- vocabulary_df[1:5, ]
+top5_smallest <- vocabulary_df[(nrow(vocabulary_df) - 4):nrow(vocabulary_df), ]
+
+# Combine the top 5 largest and smallest dataframes
+combined_df <- rbind(top5_largest, top5_smallest)
+
+# Add a column to indicate whether the artist has the largest or smallest vocabulary
+combined_df$category <- ifelse(combined_df$artist %in% top5_largest$artist, "Largest", "Smallest")
+
+# Reorder the artists within each category
+combined_df$artist <- factor(combined_df$artist, levels = combined_df$artist[order(combined_df$category, combined_df$vocabulary_size)])
+
+# Plot the combined data
+ggplot(combined_df, aes(x = reorder(artist, vocabulary_size), y = vocabulary_size)) +
+  geom_bar(stat = "identity", aes(fill = category)) +
+  facet_wrap(~ category, scales = "free", nrow = 1) +
+  labs(title = "Top 5 Artists with Largest and Smallest Vocabulary",
+       x = "Artist",
+       y = "Vocabulary Size",
+       fill = "Category") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+The interactive scatter plot visualizes the relationship between the number of songs written by each artist and the length of their combined lyrics. Each point on the plot represents an artist, with the x-axis denoting the number of songs written and the y-axis representing the length of combined text. Hovering over a data point reveals the corresponding artist's name, providing additional context. This interactive visualization allows for easy exploration of the dataset, enabling users to identify patterns and outliers among artists in terms of their productivity and the amount of lyrical content they've produced. It offers a dynamic way to analyze and interpret the relationship between songwriting activity and the quantity of text generated by different artists in the dataset.
+
+```{r}
+
+unique_words <- aggregate(text_combined ~ artist, data = all_artists_df, FUN = function(x) length(unique(unlist(strsplit(x, "\\s+")))))
+
+# Compute the frequency of each artist in df_songs$artist
+artist_counts <- as.data.frame(table(df_songs$artist), stringsAsFactors = FALSE)
+colnames(artist_counts) <- c("artist", "num_songs")
+
+# Merge artist counts with unique_words dataframe
+unique_words <- merge(unique_words, artist_counts, by = "artist", all.x = TRUE)
+
+# View the updated unique_words dataframe
+head(unique_words)
+
+library(plotly)
+
+# Plot interactive scatter plot
+plot_ly(unique_words, x = ~num_songs, y = ~text_combined, text = ~artist, type = 'scatter', mode = 'markers') %>%
+  layout(title = "Number of Songs Written vs. Number of Unique Words Used",
+         xaxis = list(title = "Number of Songs Written"),
+         yaxis = list(title = "Number of Unique Words Used"))
+```
+
+The code below performs an analysis on a data set containing information about songs, specifically focusing on the vocabulary richness of different artists. Initially, it calculates the weighted average vocabulary size for each artist, taking into account the number of songs they've written. Artists with more songs are given more weight in the calculation, providing a more balanced comparison. The code then identifies the top 5 artists with the largest and smallest weighted average vocabulary sizes and plots them side by side using ggplot. These graphs offer insights into the diversity of vocabulary usage among artists. Contrary to the original instance where artists were solely ranked based on the number of unique words they used, this approach adjusts for the disparity in the number of songs written by each artist, ensuring a fairer comparison. Consequently, the graphs showcase artists not only with the largest or smallest vocabularies but also consider their productivity in terms of songwriting. This nuanced analysis provides a deeper understanding of the linguistic diversity exhibited by artists relative to their output.
+
+```{r}
+# Calculate the total number of words written by each artist
+total_words <- aggregate(text_combined ~ artist, data = all_artists_df, FUN = function(x) length(unlist(strsplit(x, "\\s+"))))
+
+# Merge total words with vocabulary dataframe
+vocabulary_df <- merge(vocabulary_df, total_words, by = "artist", all.x = TRUE)
+
+# Calculate weighted average vocabulary size, handling division by zero
+vocabulary_df$weighted_avg_vocabulary <- ifelse(vocabulary_df$text_combined == 0, 0, vocabulary_df$vocabulary_size / vocabulary_df$text_combined)
+
+# Sort dataframe by weighted average vocabulary size
+vocabulary_df <- vocabulary_df[order(vocabulary_df$weighted_avg_vocabulary, decreasing = TRUE), ]
+
+# Create a subset dataframe for the 5 artists with the largest adjusted vocabulary
+top5_largest_adjusted <- head(vocabulary_df, 5)
+
+# Create a subset dataframe for the 5 artists with the smallest adjusted vocabulary
+top5_smallest_adjusted <- tail(vocabulary_df, 5)
+
+# Combine the top 5 largest and smallest adjusted dataframes
+combined_adjusted_df <- rbind(top5_largest_adjusted, top5_smallest_adjusted)
+
+# Add a column to indicate whether the artist has the largest or smallest adjusted vocabulary
+combined_adjusted_df$category <- ifelse(combined_adjusted_df$artist %in% top5_largest_adjusted$artist, "Largest", "Smallest")
+
+# Reorder the artists within each category
+combined_adjusted_df$artist <- factor(combined_adjusted_df$artist, levels = combined_adjusted_df$artist[order(combined_adjusted_df$category, combined_adjusted_df$weighted_avg_vocabulary)])
+
+# Plot the combined adjusted data
+ggplot(combined_adjusted_df, aes(x = reorder(artist, weighted_avg_vocabulary), y = weighted_avg_vocabulary)) +
+  geom_bar(stat = "identity", aes(fill = category)) +
+  facet_wrap(~ category, scales = "free", nrow = 1) +
+  labs(title = "Top 5 Artists with Largest and Smallest Adjusted Vocabulary",
+       x = "Artist",
+       y = "Weighted Average Vocabulary Size",
+       fill = "Category") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+Upon examination of the `top5_largest_adjusted` and `top5_smallest_adjusted` data frames generated from the provided code, it becomes apparent that determining the artists with the largest and smallest adjusted vocabulary sizes is not without challenges, particularly when considering genre and artistic style.
+
+Genre plays a pivotal role in shaping the lyrical content of songs, with each genre often characterized by its unique vocabulary and thematic focus. For example, artists in genres such as hip-hop or rap may prioritize intricate wordplay and linguistic dexterity, resulting in a higher weighted average vocabulary size. Conversely, artists in genres like folk or country may opt for simpler and more straightforward lyrical styles, leading to lower vocabulary sizes. Therefore, comparing vocabulary sizes across genres may not always yield meaningful insights, as artistic intentions and audience expectations vary widely.
+
+Additionally, artistic style greatly influences the complexity and diversity of vocabulary used in song lyrics. Some artists may intentionally employ a wide range of vocabulary to convey profound themes and emotions, while others may prioritize simplicity and directness in their lyrical approach. Consequently, artists with similar vocabulary sizes may exhibit vastly different artistic styles and thematic focuses, making direct comparisons challenging.
+
+Moreover, it's essential to acknowledge that the analysis may be misleading due to certain limitations. For instance, artists with only one song in the dataset may artificially inflate the weighted average vocabulary size, as the calculation heavily relies on the number of songs written by each artist. Consequently, an artist with a single song containing a diverse vocabulary may erroneously appear to have the largest weighted-average vocabulary. Therefore, interpreting the graphs solely based on weighted average vocabulary size may not accurately reflect the true linguistic complexity of an artist's body of work.
+
+In conclusion, while analyzing vocabulary sizes in song lyrics provides valuable insights into artists' linguistic diversity, it's crucial to consider the influence of genre, artistic style, and dataset limitations. Acknowledging these factors ensures a more nuanced understanding of the complexities inherent in comparing vocabulary sizes across different artists and genres.
+
+### **Question 3: Are there any trends or patterns in the sentiment of song lyrics over time or across genres?**
+
+We can perform sentiment analysis on the lyrics to determine the overall sentiment of songs.
+
+```{r}
+sentiment_counts <- data.frame()
+
+for (i in seq_along(tokenized_words_list)) {
+  # Convert the current list item to a data frame
+  artist <- as.data.frame(tokenized_words_list[[i]], stringsAsFactors = FALSE) %>%
+    rename(word = 1)  # Assuming the only column contains words
+
+  # Calculate sentiment for the current artist
+  artist_sentiment <- artist %>%
+    inner_join(get_sentiments("bing"), by = "word") %>%
+    count(sentiment) %>%
+    pivot_wider(names_from = sentiment, values_from = n, values_fill = list(n = 0)) %>%
+    mutate(artist_id = i)  # adding an artist identifier for plotting
+
+  # Append the results to the main data frame
+  sentiment_counts <- bind_rows(sentiment_counts, artist_sentiment)
+}
+
+# Assuming sentiment_counts is already computed and includes columns like `positive`, `negative`, and `artist_id`
+plot_data <- sentiment_counts %>%
+  pivot_longer(
+    cols = c(positive, negative), 
+    names_to = "sentiment", 
+    values_to = "value"
+  ) %>%
+  mutate(value = if_else(sentiment == "positive", value, -value))  # Assign negative values for negative sentiment
+
+# Plotting the mirrored bar chart
+ggplot(plot_data, aes(x = factor(artist_id), y = value, fill = sentiment)) +
+  geom_bar(stat = "identity", position = "identity") +
+  scale_y_continuous(labels = abs) +  # Use absolute values for y-axis labels
+  labs(title = "Mirrored Sentiment Analysis Across Artists",
+       x = "Artist ID",
+       y = "Sentiment Value") +
+  scale_fill_manual(values = c("positive" = "green", "negative" = "red")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Slant text for better readability
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank())
+
+sentiment_counts$net_score <- sentiment_counts$positive - sentiment_counts$negative
+
+
+```
+
+```{r}
+library(ggplot2)
+
+# Assuming sentiment_counts is your data frame and is correctly populated
+# Arrange the data frame based on net_score in descending order
+sentiment_counts <- sentiment_counts[order(sentiment_counts$net_score, decreasing = TRUE), ]
+
+# Calculate percentiles based on the number of observations
+n <- nrow(sentiment_counts)
+percentiles <- seq(0, 100, by = 10)
+percentile_labels <- as.character(quantile(seq(1, n), probs = percentiles / 100))
+
+# Reorder factor levels based on net_score
+sentiment_counts$artist_id <- factor(sentiment_counts$artist_id, levels = sentiment_counts$artist_id)
+
+# Calculate evenly spaced tick marks for the x-axis
+ticks <- quantile(seq_along(sentiment_counts$artist_id), probs = seq(0, 1, by = 0.1))
+tick_labels <- seq(0, 100, by = 10)  # Custom labels for the ticks
+
+fill_colors <- ifelse(sentiment_counts$net_score > 0, "green", 
+                      ifelse(sentiment_counts$net_score < 0, "red", "grey"))
+
+# Create the bar chart
+ggplot(sentiment_counts, aes(x = artist_id, y = net_score, fill = fill_colors)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Net Sentiment Score Across Artists",
+       x = NULL,  # Remove x-axis label
+       y = "Net Sentiment Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Remove x-axis labels
+        axis.ticks.x = element_blank()) +  # Remove x-axis ticks
+  scale_x_discrete(breaks = ticks,
+                   labels = tick_labels) +  # Set evenly spaced tick marks with custom labels
+  scale_fill_manual(values = c("green", "grey", "red"))  # Set fill colors manually
+
+```
+
+\
+This analysis examines the net sentiment scores across various artists based on sentiment analysis of their songs. The chart visualizes the net sentiment scores of artists, where positive values indicate a predominance of positive sentiment in the lyrics, and negative values indicate a predominance of negative sentiment.
+
+The majority of artists exhibit net positive sentiment scores, suggesting that their songs tend to convey more positive emotions than negative ones. However, it is noteworthy that the artists with net negative sentiment scores are substantially more negative in their lyrical content. These artists exhibit a pronounced negativity that surpasses the positivity seen in the majority of artists.
+
+Interestingly, the analysis reveals that the artists with extremely negative sentiment scores are more extreme in their negativity than the positive artists are in their positivity. This suggests a wide range of emotional expression across different artists, with some leaning heavily towards negative sentiments while others maintain a more balanced or positive tone in their songs.
+
+Overall, this analysis provides insights into the diversity of emotional themes conveyed through music, highlighting both the prevalence of positivity among artists and the notable outliers who express particularly strong negative sentiments.
+
+### **Question 4: Do Negative Artists Tend to Use More Profanity?**
+
+We can gauge profanity in song lyrics by tallying profane instances and normalize them for fair assessment.
+
+```{r}
+
+ swear_words <- readRDS("swear_words")
+
+# Create a data frame to store swear word counts for each artist
+swear_word_counts <- data.frame(artist_id = character(), swear_word_count = integer(), stringsAsFactors = FALSE)
+
+# Iterate over each artist's tokenized words
+for (i in seq_along(tokenized_words_list)) {
+  artist_id <- names(tokenized_words_list)[i]
+  tokenized_words <- unlist(tokenized_words_list[[i]])
+  
+  # Count occurrences of swear words
+  swear_word_count <- sum(tokenized_words %in% swear_words)
+  
+  # Store artist ID and swear word count in the data frame
+  swear_word_counts <- rbind(swear_word_counts, data.frame(artist_id = artist_id, swear_word_count = swear_word_count))
+}
+
+
+# Assign row numbers as IDs to the swear_word_counts data frame
+swear_word_counts <- swear_word_counts %>%
+  mutate(artist_id = row_number())
+
+sentiment_counts$artist_id <- as.integer(sentiment_counts$artist_id)
+
+# Perform left join to add swear word count to sentiment counts
+combined_data <- left_join(sentiment_counts, swear_word_counts, by = "artist_id")
+
+
+plot_ly(combined_data, y = ~swear_word_count, x = ~net_score, type = "scatter", mode = "markers", 
+        marker = list(color = "blue", size = 10), text = ~paste("Artist ID:", artist_id)) %>%
+  layout(title = "Number of Swear Words vs. Net Sentiment Score",
+         yaxis = list(title = "Number of Swear Words"),
+         xaxis = list(title = "Net Sentiment Score"))
+
+
+```
+
+The observation that artists with net sentiment scores closest to zero tend to use swear words more frequently than others is intriguing and suggests several potential explanations.
+
+Firstly, it's essential to acknowledge that music is a form of artistic expression that often reflects the emotions, experiences, and perspectives of the artist. Swear words, known for their emotive power and taboo nature, can serve as potent linguistic tools for conveying intense emotions, expressing frustration, or adding emphasis. Artists who aim to create raw, authentic, or provocative music may deliberately incorporate swear words into their lyrics to evoke strong reactions from listeners or to convey a sense of authenticity and honesty.
+
+Additionally, artistic style plays a significant role in determining the use of swear words. Some artists may cultivate personas or images that are rebellious, edgy, or confrontational, and the use of explicit language, including swear words, can be a deliberate choice to reinforce this image. For these artists, swear words may serve as linguistic markers of identity and attitude, aligning with their artistic vision and resonating with certain audiences who appreciate bold, unapologetic expression.
+
+Moreover, the subject matter and themes explored in an artist's music can influence their use of swear words. Artists who tackle controversial, socially relevant, or emotionally charged topics may find swear words to be effective tools for conveying the intensity or urgency of their message. In genres like hip-hop, punk rock, or heavy metal, where authenticity, authenticity, and rebellion are often valued, swear words may be more prevalent as artists navigate themes of societal injustice, personal struggle, or cultural critique.

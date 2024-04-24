@@ -1,0 +1,25 @@
+"0",""
+"0","print(names(artist))"
+"1","[1]"
+"1"," ""tokenized_words_list[[\""ABBA\""]]"""
+"1","
+"
+"0","print(names(get_sentiments(""bing"")))"
+"1","[1]"
+"1"," ""word""     "
+"1"," ""sentiment"""
+"1","
+"
+"0","# If 'word' is the common column, specify it explicitly in the join"
+"0","artist_sentiment <- artist %>%"
+"0","  inner_join(get_sentiments(""bing""), by = ""word"") %>%  # Replace 'word' with the actual common column name"
+"0","  count(Song, sentiment) %>%"
+"0","  pivot_wider(names_from = sentiment, values_from = n, values_fill = list(n = 0)) %>% "
+"0","  mutate(sentiment = positive - negative)"
+"1","[1m[33mError[39m in `inner_join()`:[22m
+[38;5;232m[33m![38;5;232m Join columns in `x` must be present in the data.
+[31m✖[38;5;232m Problem with `word`.[39m
+Backtrace:
+[90m 1. [39m... %>% mutate(sentiment = positive - negative)
+[90m 6. [39m[1m[94mdplyr:::inner_join.data.frame([39m[22m., get_sentiments(""bing""), by = ""word""[1m[94m)[39m[22m
+"
